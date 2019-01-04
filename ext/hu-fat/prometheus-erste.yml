@@ -1,0 +1,118 @@
+# my global config
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+# Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+
+# all EC2s
+  - job_name: 'node-exporter'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/ec2
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# ECS Clusters
+  - job_name: 'mgmt-cluster'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/mgmt-cluster
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+  - job_name: 'app-cluster'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/mgmt-cluster
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+  - job_name: 'elasticsearch-cluster'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/elasticsearch-cluster
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# Cassandra cluster
+  - job_name: 'Cassandra node'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/cassandra-node
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+  - job_name: 'Cassandra JMX'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/cassandra-app
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# George API
+  - job_name: 'George API JMX'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/george-api-jmx
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# George Importer
+  - job_name: 'George API Importer'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/george-importer-jmx
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# George Backoffice
+  - job_name: 'George Backoffice JMX'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/george-backoffice-jmx
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# George Beancounter
+  - job_name: 'George Beancounter JMX'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.hu-fat-egit.priv:8085/george-beancounter-jmx
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+

@@ -1,0 +1,60 @@
+# my global config
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+# Prometheus federation
+  - job_name: 'federate'
+    scrape_interval: 15s
+
+    honor_labels: true
+    metrics_path: '/federate'
+
+    params:
+      'match[]':
+        - '{job="prometheus"}'
+        - '{__name__=~"job:.*"}'
+
+    static_configs:
+      - targets:
+        - 'mgmt-alb.hu-fat-egit.priv:9090'
+
+# all EC2s
+  - job_name: 'node-exporter'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.dbo-support-egit.priv:8085/ec2
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# ECS Clusters
+  - job_name: 'mgmt-cluster'
+    marathon_sd_configs:
+      - servers:
+        - http://mgmt-alb.dbo-support-egit.priv:8085/mgmt-cluster
+    relabel_configs:
+      - source_labels:
+        - __meta_marathon_app_label_name
+        target_label: name
+
+# Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+
