@@ -1,24 +1,13 @@
-FROM grafana/grafana:5.3.4
-USER root
+FROM alpine:3.4
 
-ENV PROM_URL http://localhost:9090
-ENV PROM_NAME PROMETHEUS
-ENV ELASTIC_NAME ELASTIC
-ENV ELASTIC_URL http://localhost:9200
+RUN apk --update add nginx php5-fpm && \
+    mkdir -p /var/log/nginx && \
+    touch /var/log/nginx/access.log && \
+    mkdir -p /run/nginx
 
-COPY ./ext/provisioning /etc/grafana/provisioning
-COPY ./ext/config.ini /etc/grafana/config.ini
-COPY ./ext/dashboards /var/lib/grafana/dashboards
-COPY ./ext/sed.sh /etc/sed.sh
+ADD www /www
+ADD nginx.conf /etc/nginx/
+ADD php-fpm.conf /etc/php5/php-fpm.conf
 
-RUN chown -R grafana /var/lib/grafana/dashboards
-RUN chown root /run.sh
-RUN sed -i "4i\'/etc/sed.sh'\n" /run.sh
-RUN chown grafana /run.sh
-RUN chown -R grafana /etc/grafana/provisioning
-
-USER grafana
-
-
-
-
+EXPOSE 80
+CMD php-fpm -d variables_order="EGPCS" && (tail -F /var/log/nginx/access.log &) && exec nginx -g "daemon off;"
