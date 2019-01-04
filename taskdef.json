@@ -5,6 +5,7 @@
             "image": "%REPOSITORY_URI%:v_%BUILD_NUMBER%",
             "name": "Prometheus",
             "essential": true,
+            "memory": 1000,
             "portMappings": [
                 {
                     "containerPort": 9090,
