@@ -1,15 +1,13 @@
 {
-    "family": "hello-world",
+    "family": "Monitoring",
     "containerDefinitions": [
         {
             "image": "%REPOSITORY_URI%:v_%BUILD_NUMBER%",
-            "name": "hello-world",
-            "cpu": 10,
-            "memory": 256,
+            "name": "Prometheus",
             "essential": true,
             "portMappings": [
                 {
-                    "containerPort": 80,
+                    "containerPort": 9090,
                     "hostPort": 80
                 }
             ]
