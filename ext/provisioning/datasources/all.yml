@@ -1,0 +1,27 @@
+apiVersion: 1
+datasources:
+- name: '${PROM_NAME}'
+  type: 'prometheus'
+  access: 'proxy'
+  org_id: 1
+  url: '${PROM_URL}'
+  is_default: true
+  version: 1
+  editable: true
+
+- name: '${ELASTIC_NAME}'
+  type: 'elasticsearch'
+  access: 'proxy'
+  jsonData:
+     timeField: "timestamp"
+     esVersion: 56
+     interval: "Daily"
+  url: '${ELASTIC_URL}'
+  database: "[.monitoring-es-6-]YYYY.MM.DD"
+  editable: true
+
+
+
+
+
+

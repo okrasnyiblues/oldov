@@ -1,16 +1,24 @@
-FROM prom/prometheus:v2.5.0
-ARG ENVIRONMENT
-COPY ext/hu-fat/prometheus-erste.yml /etc/prometheus/prometheus-erste.yml
-USER root 
-RUN chmod 755 /etc/prometheus/prometheus-erste.yml
-USER nobody
+FROM grafana/grafana:5.3.4
+USER root
 
-EXPOSE     9090
-VOLUME     [ "/prometheus" ]
-WORKDIR    /prometheus
-ENTRYPOINT [ "/bin/prometheus" ]
-CMD        [ "--config.file=/etc/prometheus/prometheus-erste.yml", \
-             "--storage.tsdb.path=/prometheus", \
-             "--web.console.libraries=/usr/share/prometheus/console_libraries", \
-             "--web.console.templates=/usr/share/prometheus/consoles" ]
-  
+ENV PROM_URL http://localhost:9090
+ENV PROM_NAME PROMETHEUS
+ENV ELASTIC_NAME ELASTIC
+ENV ELASTIC_URL http://localhost:9200
+
+COPY ./ext/provisioning /etc/grafana/provisioning
+COPY ./ext/config.ini /etc/grafana/config.ini
+COPY ./ext/dashboards /var/lib/grafana/dashboards
+COPY ./ext/sed.sh /etc/sed.sh
+
+RUN chown -R grafana /var/lib/grafana/dashboards
+RUN chown root /run.sh
+RUN sed -i "4i\'/etc/sed.sh'\n" /run.sh
+RUN chown grafana /run.sh
+RUN chown -R grafana /etc/grafana/provisioning
+
+USER grafana
+
+
+
+
